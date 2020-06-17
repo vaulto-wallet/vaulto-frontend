@@ -1,0 +1,51 @@
+@import '~antd/lib/style/themes/default.less';
+
+.walletcard {
+    width: 100%;
+    transition: background 0.3s, width 0.2s;
+    background-image: linear-gradient(to right bottom, #051937, #042d60, #02438c, #0559ba, #1270eb);
+    padding-bottom : 16px;
+    margin-bottom : 10px;
+    border-radius: 10px;
+    .balance {
+        color :#c7eaff;
+        font-size : 30px;
+    }
+    .currency {
+        color: #c7eaff; 
+        font-size : 20px;
+        margin-left : 10px;
+    }
+    &:global(.ant-card-small > .ant-card-head){
+        border-bottom: 1px solid #79a0e7;
+    }
+    &:global(.ant-card-small > .ant-card-head > .ant-card-head-wrapper > .ant-card-head-title) {
+            color : #83d0ee;
+            font-size : 12px;
+            font-weight : 600;
+    } 
+
+    .walleticons{
+        position : absolute;
+        bottom : 5px;
+        left : 12px;
+        a{
+            color : #c0e3f1;
+            padding-right : 10px;
+        }
+
+    }
+
+    .walletcurrencyname{
+        position : absolute;
+        bottom : 5px;
+        right : 12px;
+        color : #c0e3f1;
+    }
+    .walletcurrencysymbol{
+        position : absolute;
+        bottom : 40px;
+        right : 12px;
+        color : #c0e3f1;
+    }
+}  
