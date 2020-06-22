@@ -5,8 +5,8 @@ import {Row, Col, Form, Input, InputNumber, Button} from 'antd';
 
 
 
-@connect(({ userAccount }) => ({
-  userAccount
+@connect(({ userAccount, userAccounts }) => ({
+  userAccount, userAccounts
 }))
 class SettingsPage extends Component{
   state = {
@@ -25,13 +25,18 @@ class SettingsPage extends Component{
     const { keys } = this.props.userAccount;
     console.log(  "Wallet component ", this.props );
     dispatch({
-      type: 'userAccount/getAccount',
+      type: 'userAccounts/getAccounts',
       payload: {}
     });
     dispatch({
+      type: 'userAccount/getAccount',
+      payload: {}
+    });
+    /*
+    dispatch({
         type: 'userAccount/getOTP',
         payload: {}
-    });
+    });*/
 }
 
 
@@ -51,17 +56,17 @@ class SettingsPage extends Component{
   };
 
   render(){
-    const {otp, account} = this.props.userAccount;
-    console.log("Render Settings", otp, account)
+    const {account} = this.props.userAccount;
+    const {accounts} = this.props.userAccounts;
+    console.log("Render Settings", this.props)
     return(
       <div style={{ textAlign: 'left' }}>
-        
-        {otp && otp.secret && account ?
+        {account && account.otp_key ?
           <div>
             <Row>
               <Col xs={24} xl={8} md={8} >
-                <p>{account.name || ""}</p>
-                <p>{otp.secret}</p>
+                <h4>Account : {accounts[account.id].name || ""}</h4>
+                <h4>TOTP key : {account.otp_key}</h4>
                 <InputNumber onChange={this.inputCodeChange}/>
                 <Button type="primary" onClick={this.confirmCode} >
                       Confirm
@@ -70,7 +75,7 @@ class SettingsPage extends Component{
               <Col xs={24} xl={8} md={8}>
                 <QRCode 
                     size = {256}
-                    value={`otpauth://totp/Waulto:${account.name || ""}?secret=${otp.secret}&issuer=Vaulto`}>
+                    value={`otpauth://totp/Vaulto:${account.name || ""}?secret=${account.otp_key}&issuer=Vaulto`}>
                 </QRCode>
               </Col>
             </Row>

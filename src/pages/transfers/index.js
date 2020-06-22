@@ -10,7 +10,7 @@ const {
   Header, Content, Footer, Sider,
 } = Layout;
 
-const ConfirmationModalCreated = Form.create({ name: 'transfer-confirmation-form' })(ConfirmationModal);
+//const ConfirmationModalCreated = Form.create({ name: 'transfer-confirmation-form' })(ConfirmationModal);
 
 
 class TransfersPage extends Component{
@@ -31,7 +31,7 @@ class TransfersPage extends Component{
       payload: {},
     });
     dispatch({
-      type: 'userKeys/getKeys',
+      type: 'userKeys/getWallets',
       payload: {},
     });
     dispatch({
@@ -68,10 +68,10 @@ class TransfersPage extends Component{
     let icon = "loading";
     let text = "Loading"; 
     if( validated[address] == undefined){
-      dispatch({
+      /*dispatch({
         type : "userWallets/validateAddress",
         payload : {address : address}
-      });
+      });*/
     }  
     if( validated[address] == 0){
       color = "red";
@@ -88,8 +88,27 @@ class TransfersPage extends Component{
 
   }
 
+  renderOrderStatus(status){
+    switch(status){
+      case 0: 
+       return "Unknown"
+      case 1: 
+       return "New"
+      case 2: 
+       return "Confirmed"
+      case 3: 
+       return "Processing"
+      case 4: 
+       return "Partially processed"
+      case 5: 
+       return "Processed"
+
+    }
+
+  }
+
   render(){
-    console.log('KeysPage render',this.props);
+    console.log('TransfersPage render',this.props);
     const {userAssets, userKeys, userAccounts, userTransfers} = this.props;
     const {keys} = userKeys || {};
     const {assets} = userAssets || {};
@@ -103,17 +122,17 @@ class TransfersPage extends Component{
         key: 'id'
       },
       {
-        title : 'Outs',
-        dataIndex: 'outs',
-        key: 'outs',
+        title : 'Destinations',
+        dataIndex: 'destinations',
+        key: 'destinations',
         render: (outs, record) => (
           <span>
             {
               outs.map(out => {
               const color = 'blue';
               return (
-                <span key={out.address.toString()}>
-                  {out.amount} {record.currency} <Icon type="arrow-right"/> {this.renderAddress(out.address)}
+                <span key={out.address_to.toString()}>
+                  {out.amount} {record.asset.symbol} <Icon type="arrow-right"/> {this.renderAddress(out.address_to)}
                 </span>
               );
             })
@@ -124,7 +143,7 @@ class TransfersPage extends Component{
       {
         title : 'Description',
         key: 'description',
-        dataIndex: 'description',
+        dataIndex: 'comment',
       },
       {
         title : 'Created by',
@@ -132,8 +151,8 @@ class TransfersPage extends Component{
         dataIndex: 'user',
         render : (text, record)=>(
           <span>
-                <Tag color={"green"} key={record.id.toString()}>
-                  {accounts[record.user].name}
+                <Tag color={"green"} key={record["id"].toString()}>
+                  {accounts[record.id].name}
                 </Tag>
           </span>
         )
@@ -147,11 +166,10 @@ class TransfersPage extends Component{
             {
               record.confirmations.map(confirmation => {
               const color = 'volcano';
-              return ( record.user != confirmation.user ?
+              return ( 
                 <Tag color={color} key={record.id.toString()}>
-                  {accounts[confirmation.user].name} {confirmation.status}
-                </Tag> : null
-              );
+                  {accounts[confirmation.user_id].name}
+                </Tag>)
               })
             }            
           </span>
@@ -163,7 +181,7 @@ class TransfersPage extends Component{
       dataIndex: 'status',
       render : (text, record)=>(
         <span>
-            {text}
+            {this.renderOrderStatus(text)}
         </span>
       )
       },
@@ -172,15 +190,15 @@ class TransfersPage extends Component{
         key: 'actions',
         render : (text, record)=>(
           <span>
-            {!record.is_confirmed ? <Button onClick={()=>{this.handleConfirmTransfer(record.id)}}>Confirm</Button> : null}
-            {record.is_confirmed ? <Button onClick={()=>{this.handleDeleteKey(record.id)}}>Revoke</Button> : null}
+            {record.status > 1 ? <Button onClick={()=>{this.handleConfirmTransfer(record.id)}}>Confirm</Button> : null}
+            {record.status = 1 ? <Button onClick={()=>{this.handleDeleteKey(record.id)}}>Revoke</Button> : null}
           </span>
         )
 
       }
     ]
 
-    const dataSource = transfers ? Object.values(transfers) : null;
+    const dataSource = transfers ? transfers : null;
 
     console.log('TransfersPage render',this.props, dataSource);
 

@@ -43,13 +43,18 @@ export async function getAssets(params) {
     return authorizedRequest('GET','/api/assets', params);
 }
 
-export async function getAddresses(params) {
-    return authorizedRequest('GET','/api/address/'+params.id , {});
+export async function getWallet(params) {
+    return authorizedRequest('GET','/api/wallet/'+params.id , {});
 }
 
 export async function getAddress(params) {
     return authorizedRequest('POST','/api/address/'+params.id+'/'+params.n+"/", {});
 }
+
+export async function getAddresses(params) {
+    return authorizedRequest('GET','/api/address/'+params.id, {});
+}
+
 
 export async function validateAddress(params) {
     return authorizedRequest('GET','/api/address/validate/'+params.address+'/', {});
@@ -110,7 +115,7 @@ export async function createTransfer(params) {
 }
 
 export async function getTransfers(params) {
-    return authorizedRequest('GET', '/api/transfers/', params);
+    return authorizedRequest('GET', '/api/orders', params);
 }
 
 export async function createConfirmation(params) {

@@ -104,14 +104,17 @@ export default class WalletsList extends Component {
     }
 
     walletClick(id) {
-        console.log("List click", id);
-        const { dispatch } = this.props;
+        console.log("WalletList click", id, this.props);
+        const { dispatch, onClick } = this.props;
         const { wallets } = this.props.userWallets;
 
         dispatch({
             "type": "userWallets/setCurrentKey",
             "payload": wallets[id]
         })
+        if( onClick ){
+            onClick(id);
+        }
     }
 
 

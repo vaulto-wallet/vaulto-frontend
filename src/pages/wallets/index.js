@@ -22,7 +22,7 @@ const KEY_TYPE_MULTI = 4
 //const CreatedPrivateKeyShareForm = Form.create({"name" : 'create_private_key_share_form'})(CreatePrivateKeyShareForm);
 
 @connect(({ userAssets, userKeys, userWallets }) => ({
-  userAssets,userKeys, userWallets
+  userAssets,userKeys,userWallets
 }))
 class WalletsPage extends Component{
   state = {
@@ -34,6 +34,7 @@ class WalletsPage extends Component{
   constructor(props){
       super(props);
       this.handleAddAddress = this.handleAddAddress.bind(this);
+      this.handleOnWalletClick = this.handleOnWalletClick.bind(this);
   }
 
   componentDidMount(){
@@ -99,7 +100,17 @@ class WalletsPage extends Component{
     console.log("Handle delete", id);
   }
 
+  handleOnWalletClick(id){
+    console.log("Handle OnWalletClick", id);
+    const { dispatch } = this.props;
+    
+    dispatch({
+      type: 'userWallets/getAddresses',
+      payload: {}
+    });
 
+    
+  }
 
   render(){
     console.log('WalletsPage render',this.props);
@@ -151,7 +162,7 @@ class WalletsPage extends Component{
 
         </Modal>
 
-        <WalletsList/>
+        <WalletsList onClick={this.handleOnWalletClick}/>
 
          <Card>
           <Button onClick={this.handleAddAddress}>Add address</Button>

@@ -27,18 +27,16 @@ class AccountsPage extends Component{
 
     componentDidMount(){
         const {dispatch} = this.props;
+        /*
+        dispatch({
+            type : "userAccounts/getAccounts",
+            payload :{}
+        })*/
         dispatch({
             type : "userAccounts/getAccounts",
             payload :{}
         })
-        dispatch({
-            type : "userAccounts/getUsers",
-            payload :{}
-        }),
-        dispatch({
-            type : "userAccounts/getWorkerStatus",
-            payload :{}
-        })
+
     }
 
     createGroups(){
@@ -80,16 +78,16 @@ class AccountsPage extends Component{
         const {userFormVisible} = this.state;
 
         console.log("accountsPage", this.props);
-        const columns_accounts = [
+        /*const columns_accounts = [
             {
               title : 'User ID',
               dataIndex: 'user',
-              key: 'user'
+              key: 'username'
             },
             {
               title : 'Name',
               dataIndex: 'name',
-              key: 'name',
+              key: 'username',
             },
             {
               title : 'Actions',
@@ -102,7 +100,7 @@ class AccountsPage extends Component{
               )
       
             }
-          ];
+          ];*/
           const columns_users = [
             {
               title : 'User ID',
@@ -110,9 +108,9 @@ class AccountsPage extends Component{
               key: 'id'
             },
             {
-              title : 'Login',
-              dataIndex: 'username',
-              key: 'username',
+              title : 'Name',
+              dataIndex: 'name',
+              key: 'name',
             },
             {
                 title : 'E-mail',
@@ -132,7 +130,7 @@ class AccountsPage extends Component{
             }
           ];      
         const dataSource_accounts = accounts ? Object.values(accounts) : null;
-        const dataSource_users = users ? Object.values(users) : null;
+        //const dataSource_users = users ? Object.values(users) : null;
 
 
         return(
@@ -146,12 +144,12 @@ class AccountsPage extends Component{
                 
                 <Card>
                     <h1>Users</h1>
-                    {dataSource_users ? <Table dataSource={dataSource_users} columns={columns_users} rowKey="id" /> : null}
+                    {dataSource_accounts ? <Table dataSource={dataSource_accounts} columns={columns_users} rowKey="id" /> : null}
                 </Card>
-                <Card>
+                {/*<Card>
                     <h1>Accounts</h1>
                     {dataSource_accounts ? <Table dataSource={dataSource_accounts} columns={columns_accounts} rowKey="user" /> : null}
-                </Card>
+                </Card>*/}
     
             </Content> 
                 

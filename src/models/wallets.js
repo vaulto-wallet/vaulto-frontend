@@ -1,5 +1,5 @@
 import { routerRedux } from 'dva/router';
-import { getAddress, getAddresses, validateAddress, getWallets} from '@/services/api';
+import { getAddress, getWallet, validateAddress, getWallets, getAddresses} from '@/services/api';
 
 
 export default {
@@ -7,7 +7,9 @@ export default {
 
   state: {
     current_key : null,
-    validated : {}
+    wallet_info : null,
+    addresses : {},
+    validated : {},
   },
 
   effects: {
@@ -40,10 +42,23 @@ export default {
       const current_key = yield select(state => state.userWallets.current_key);
 
       console.log("getCurrentKeyInfo", current_key);
-      const response = yield call(getAddresses, current_key);
+      const response = yield call(getWallet, current_key);
       console.log("getCurrentKeyInfo", response.result);
       yield put({
-        type: 'setCurrentWalletAddresses',
+        type: 'setCurrentWalletInfo',
+        //payload: response.result.reduce((a,b)=>(a[b.id]=b, a),{}),
+        payload: response.result,
+      });
+    },
+    *getAddresses( {payload}, {call,put, select} ){
+      console.log("getAddresses model", payload);
+      const current_key = yield select(state => state.userWallets.current_key);
+
+      console.log("getAddresses", current_key);
+      const response = yield call(getAddresses, current_key);
+      console.log("getAddresses call response", response);
+      yield put({
+        type: 'setCurrentAddresses',
         payload: response.result.reduce((a,b)=>(a[b.id]=b, a),{}),
       });
     },
@@ -84,8 +99,15 @@ export default {
         current_key: payload,
       };
     },
-    setCurrentWalletAddresses(state, { payload }) {
-      console.log("setCurrentAddresses reducer",payload);
+    setCurrentWalletInfo(state, { payload }) {
+      console.log("setCurrentWalletInfo reducer",payload);
+      return {
+        ...state,
+        wallet_info: payload,
+      };
+    },
+    setCurrentAddresses(state, { payload }) {
+      console.log("setCurrentWalletInfo reducer",payload);
       return {
         ...state,
         addresses: payload,

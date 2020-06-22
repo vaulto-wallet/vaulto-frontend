@@ -67,7 +67,7 @@ export default {
       console.log("setAccounts reducer",payload);
       return {
         ...state,
-        accounts: payload.accounts,
+        accounts: payload,
       };
     },
     setUsers(state, { payload }) {

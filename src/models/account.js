@@ -25,7 +25,7 @@ export default {
         console.log("getAccount model response", response);
         yield put({
             type: 'setAccount',
-            payload: response,
+            payload: response.result,
         });
     },
     *getOTP( {payload}, {call, put}  ){

@@ -17,7 +17,7 @@ const KEY_TYPE_SINGLE = 3
 const KEY_TYPE_MULTI = 4
 
 
-const EditableFormTable = Form.create()(EditableTable);
+//const EditableFormTable = Form.create()(EditableTable);
 
 @connect(({ userAssets, userKeys, userWallets, userFirewall, userAccounts }) => ({
   userAssets,userKeys, userWallets, userFirewall, userAccounts
@@ -32,9 +32,16 @@ class FirewallPage extends Component{
   }
 
   componentDidMount(){
+    
     const { dispatch } = this.props;
     const { keys } = this.props.userKeys;
     console.log(  "Firewall component ", this.props );
+
+    dispatch({
+      type : "userAssets/getAssets",
+      payload : {}
+    })
+
 
     dispatch({
       type : "userAccounts/getAccounts",
@@ -42,7 +49,7 @@ class FirewallPage extends Component{
     })
 
     dispatch({
-        type: 'userKeys/getKeys',
+        type: 'userWallets/getWallets',
         payload: {}
     });
  
@@ -102,18 +109,19 @@ class FirewallPage extends Component{
     const {userAssets, userKeys, userWallets} = this.props;
     const {keys} = userKeys || {};
     const {assets} = userAssets || {};
-    const {addresses} = userWallets || {};
-    const {firewall_rules} = userWallets.current_key || {};
+    const {wallet_info} = userWallets || {};
+    const {firewall_rules} = wallet_info || [];
     const { accounts } = this.props.userAccounts || {};
     const { keydata } = this.props;
 
+    console.log('FirewallPage render Rules',firewall_rules);
 
     let shared_users_options = [];
     let shared_users = "";
 
     if( accounts && firewall_rules && accounts){
       shared_users_options = accounts ? Object.values(accounts).map( a => (
-          <Option key={a.user.toString()} value={a.user.toString()}>{a.name}</Option>
+          <Option key={a.id.toString()} value={a.id.toString()}>{a.name}</Option>
       )) : [];
     }
 
@@ -164,7 +172,8 @@ class FirewallPage extends Component{
         title : 'Approved signatures',
         render: (text, record) => {
           console.log("Render apsign", text, record, this);
-          return(<div>{record.firewall_signatures && record.firewall_signatures.length > 0 ? record.firewall_signatures.map( item=>{ return <Tag key={"tg_"+item.toString()} color="blue">{this.props.userAccounts.accounts[item]["name"]}</Tag>} ) : "No signatures" }</div>);
+          return(<div>{record.firewall_signatures && record.firewall_signatures.length > 0 ? 
+            record.firewall_signatures.map( item=>{ return <Tag key={"tg_"+item.toString()} color="blue">{item}</Tag>} ) : "No signatures" }</div>);
         }, 
         help : 'Approved users. * for single signature of transaction initiator',
         dataIndex: 'firewall_signatures',
@@ -181,8 +190,10 @@ class FirewallPage extends Component{
         console.log(fridx,  firewall_rules[fridx]);
         let rule = Object.assign({},firewall_rules[fridx]);
         rule["key"] = firewall_rules[fridx].id;
-        rule["firewall_signatures"] = firewall_rules[fridx].firewall_signatures.map(item=>(item.user.toString()));
-        rule["address_list"] = firewall_rules[fridx].address_list.map(item=>(item.address)).join(",");
+        const participants_list = JSON.parse(firewall_rules[fridx].participants)
+        rule["firewall_signatures"] = participants_list.map(item=>(accounts[item].name.toString()));
+        //rule["address_list"] = firewall_rules[fridx].address_list.map(item=>(item.address)).join(",");
+        rule["address_list"] = "internal";
         dataSource.push(rule);
       }
     } 
@@ -199,7 +210,7 @@ class FirewallPage extends Component{
          </Card> 
 
         <Card>
-          {dataSource ? <EditableFormTable data={dataSource} columns={columns} options={shared_users_options}/> : null}
+          {dataSource ? <EditableTable data={dataSource} columns={columns} options={shared_users_options}/> : null}
         </Card>
 
       </Content> 

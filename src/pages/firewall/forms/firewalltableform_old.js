@@ -4,58 +4,63 @@ import { Table, Input, InputNumber, Popconfirm, Form, Select } from 'antd';
 import { isTaggedTemplateExpression } from '@babel/types';
 
 const Option = Select.Option;
-//const EditableContext = React.createContext();
+const EditableContext = React.createContext();
+/*
+class EditableCell extends Component {
+    getInput = (options) => {
+      if (this.props.inputType === 'number') {
+        return <InputNumber />;
+      }
+      if (this.props.inputType === 'options') {
+        const {options} = this.props;
 
-
-const getInput = (inputType, options) => {
-  if (inputType === 'number') {
-    return <InputNumber />;
-  }
-  if (inputType === 'options') {
-    return( <Select mode = "multiple" style = { {width: "100%"}} 
-    >
-        {options}
-    </Select>);
-  }
-  return <Input />;
-};
-
-const EditableCell = ({
-  editing,
-  dataIndex,
-  title,
-  help,
-  inputType,
-  record,
-  index,
-  required,
-  options,
-  children,
-  ...restProps
-  })=>{
-    const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-    return(
-      <td {...restProps}>
-      {editing ? (
-          <Form.Item style={{ margin: 0 }} help={help || ""} name={dataIndex}
-              rules= {[
-              {
-                  required: required,
-                  message: `Please Input ${title}!`,
-              },
-              ]}
-              initialValue = {record[dataIndex]}>
-              {getInput(inputType, options || null) } 
-          </Form.Item>
-      ) : (
-          children
-      )}
-      </td>
-    )
-  }
-    
+        return( <Select mode = "multiple" style = { {width: "100%"}} 
+        >
+            {options}
+        </Select>);
+      }
+      return <Input />;
+    };
   
-
+    renderCell = () => {
+      const {
+        editing,
+        dataIndex,
+        title,
+        help,
+        inputType,
+        record,
+        index,
+        required,
+        options,
+        children,
+        ...restProps
+      } = this.props;
+        return (
+            <td {...restProps}>
+            {editing ? (
+                <Form.Item style={{ margin: 0 }} help={help || ""} name={dataIndex}>
+                    rules= {[
+                    {
+                        required: required,
+                        message: `Please Input ${title}!`,
+                    },
+                    ]}
+                    initialValue = {record[dataIndex]}>
+                    {this.getInput(options || null) } 
+                </Form.Item>
+            ) : (
+                children
+            )}
+            </td>
+        );
+    };
+  
+    render() {
+      return <EditableContext.Consumer>{this.renderCell}</EditableContext.Consumer>;
+    }
+  }*/
+  
   @connect(({ userAssets, userKeys, userWallets, userFirewall, userAccounts }) => ({
     userAssets,userKeys, userWallets, userFirewall, userAccounts
   }))
@@ -64,7 +69,6 @@ const EditableCell = ({
       super(props);
       this.updateFirewallRule = this.updateFirewallRule.bind(this);
       this.state = { data : this.props.data, editingKey: '' };
-      //this.form = React.createRef();
 
       this.columns = this.props.columns;
       this.columns.push(
@@ -75,24 +79,28 @@ const EditableCell = ({
               const { editingKey } = this.state;
               const editable = this.isEditing(record);
               console.log("render record operations", record, editable);
-              return editable ? 
+              return editable ? (
                 <span>
-                    <a
+                  <EditableContext.Consumer>
+                    {form => (
+                      <a
                         href="javascript:;"
-                        onClick={() => this.save(record.key)}
+                        onClick={() => this.save(form, record.key)}
                         style={{ marginRight: 8 }}
                       >
                         Save
-                    </a>
+                      </a>
+                    )}
+                  </EditableContext.Consumer>
                   <Popconfirm title="Sure to cancel?" onConfirm={() => this.cancel(record.key)}>
                     <a>Cancel</a>
                   </Popconfirm>
                 </span>
-               : 
+              ) : (
                 <a disabled={editingKey !== ''} onClick={() => this.edit(record.key)}>
                   Edit
                 </a>
-              ;
+              );
             },
           }          
       );
@@ -202,10 +210,9 @@ const EditableCell = ({
           }),
         };
       });
-      console.log("Editable table columns", columns);
   
       return (
-        <Form form={this.form} component={false}>
+        <EditableContext.Provider value={this.props.form}>
           <Table
             components={components}
             bordered
@@ -217,7 +224,7 @@ const EditableCell = ({
               onChange: this.cancel,
             }}
           />
-        </Form>
+        </EditableContext.Provider>
       );
     }
   }

@@ -29,9 +29,10 @@ export default {
 
     *getTransfers( {payload}, {call, put}  ){
         const response = yield call(getTransfers, payload);
+        console.log("*getTransfers", response)
         yield put({
             type: 'setTransfers',
-            payload: response,
+            payload: response.result,
         });
     },
     *createConfirmation( {payload}, {call, put}  ){
@@ -56,7 +57,7 @@ export default {
     setTransfers(state, { payload }) {
       return {
         ...state,
-        transfers: payload.transfers,
+        transfers: payload,
       };
     },
     setConfirmationRequired(state, { payload }) {
