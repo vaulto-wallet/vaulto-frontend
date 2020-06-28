@@ -1,5 +1,5 @@
 export default {
-  'menu.privatekeys': 'Vaults',
+  'menu.vaults': 'Vaults',
   'menu.wallets': 'Wallets',
   'menu.firewall': 'Firewall',
   'menu.transfers': 'Transfers',

@@ -40,21 +40,15 @@ const defaultFooterDom = (
     copyright="2020 Vaulto"
     links={[
       {
-        key: 'VaultoW',
+        key: 'Vaulto',
         title: 'Vaulto Wallet',
-        href: 'https://pro.ant.design',
+        href: 'https://vaul.to',
         blankTarget: true,
       },
       {
         key: 'github',
         title: <GithubOutlined />,
         href: 'https://github.com/vaulto-wallet',
-        blankTarget: true,
-      },
-      {
-        key: 'Vaul.to',
-        title: 'Vaulto',
-        href: 'https://ant.design',
         blankTarget: true,
       },
     ]}

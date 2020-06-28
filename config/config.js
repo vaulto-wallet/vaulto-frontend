@@ -21,10 +21,10 @@ export default defineConfig({
   },
   locale: {
     // default zh-CN
-    default: 'zh-CN',
+    default: 'en-US',
     // default true, when it is true, will use `navigator.language` overwrite default
-    antd: true,
-    baseNavigator: true,
+    antd: false,
+    baseNavigator: false,
   },
   dynamicImport: {
     loading: '@/components/PageLoading/index',
@@ -68,10 +68,10 @@ export default defineConfig({
         },
   
         {
-          path: '/privatekeys',
-          name: 'privatekeys',
+          path: '/vaults',
+          name: 'vaults',
           icon: 'key',
-          component: './privatekeys',
+          component: './vaults',
         },
         {
           path: '/wallets/',

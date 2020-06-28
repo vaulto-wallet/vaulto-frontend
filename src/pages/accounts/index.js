@@ -158,6 +158,6 @@ class AccountsPage extends Component{
 
 }
 
-export default connect(({ userKeys, userAccounts, userAccount }) => ({
-    userKeys, userAccounts, userAccount
+export default connect(({ userVaults, userAccounts, userAccount }) => ({
+    userVaults, userAccounts, userAccount
 }))(AccountsPage);

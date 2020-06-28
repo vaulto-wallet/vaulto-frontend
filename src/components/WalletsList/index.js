@@ -3,7 +3,7 @@ import { connect } from 'dva';
 //import styles from './index.less';
 import { Card, Row, Col, Modal, Icon, Tooltip } from "antd";
 import styles from './index.less';
-//import TransferModal from "@/components/TransferModal";
+import TransferModal from "@/components/TransferModal";
 import BTC_icon from '../../../node_modules/cryptocurrency-icons/svg/white/btc.svg';
 import ETH_icon from '../../../node_modules/cryptocurrency-icons/svg/white/eth.svg';
 import TRX_icon from '../../../node_modules/cryptocurrency-icons/svg/white/trx.svg';
@@ -86,17 +86,20 @@ class WalletCard extends Component {
 }
 
 
-@connect(({ userAssets, userKeys, userWallets, userTransfers }) => ({
-    userAssets, userKeys, userWallets, userTransfers
+@connect(({ userAssets, userVaults, userWallets, userTransfers }) => ({
+    userAssets, userVaults, userWallets, userTransfers
 }))
 export default class WalletsList extends Component {
-
+    state={
+        transferModalVisible : false
+    }
 
     constructor() {
         super()
         this.walletClick = this.walletClick.bind(this);
         this.transferClick = this.transferClick.bind(this);
         this.onCancelTransfer = this.onCancelTransfer.bind(this);
+        this.onTransferSubmit = this.onTransferSubmit.bind(this); 
         this.state = {
             transferModalVisible: false,
             trnasferModalKeyId: null
@@ -121,11 +124,13 @@ export default class WalletsList extends Component {
     transferClick(id) {
         console.log("Transfer click", id);
         const { dispatch } = this.props;
-        const { keys } = this.props.userKeys;
 
         dispatch({
             "type": "userTransfers/transferForm",
             "payload": id
+        })
+        this.setState({
+            transferModalVisible: true
         })
 
 
@@ -156,10 +161,47 @@ export default class WalletsList extends Component {
     }
 
     onCancelTransfer() {
+        const {dispatch} = this.props;
         console.log("onCancelTransfer");
+        dispatch({
+            "type": "userTransfers/transferForm",
+            "payload": 0
+        })
+
         this.setState({
             transferModalVisible: false
         })
+    }
+
+    onTransferSubmit(values) {
+        const {userTransfers, dispatch} = this.props;
+        const {transferForm} = userTransfers;
+
+        this.setState({
+            transferModalVisible: false
+        })
+
+        console.log('Received values of form: ', values);
+        const { comment, destinations } = values;
+        //console.log('Merged values:', keys.map(key => ({address:address[key], amount:parseFloat(amount[key])} )  ));
+        //const outs = keys.map(key => ({address:address[key], amount:parseFloat(amount[key])} ));
+        /*        
+        dispatch(
+          {
+            type : "userConfirmation/toConfirm",
+            payload : {
+              type : "userTransfers/createTransfer",
+              passwordNotRequired : false,
+              payload : values,
+            }
+        });*/
+        const payload = {...values, wallet_id : transferForm}
+        dispatch({
+            type : "userTransfers/createTransfer",
+            passwordNotRequired : false,
+            payload : payload,
+        })
+        console.log(values)
     }
 
     render() {
@@ -174,7 +216,7 @@ export default class WalletsList extends Component {
 
         return (
             <div>
-                {/*<TransferModal visible={this.props.userTransfers.transferForm} />*/}
+                <TransferModal visible={transferModalVisible} handleCancel={this.onCancelTransfer} handleSubmit={this.onTransferSubmit}/> 
                 <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                     {this.renderWalletsList(walletsList, this.walletClick, this.transferClick)}
                 </Row>

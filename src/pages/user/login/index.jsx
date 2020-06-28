@@ -1,4 +1,3 @@
-import { AlipayCircleOutlined, TaobaoCircleOutlined, WeiboCircleOutlined } from '@ant-design/icons';
 import { Alert, Checkbox } from 'antd';
 import React, { useState } from 'react';
 import { Link, connect } from 'umi';
@@ -18,14 +17,15 @@ const LoginMessage = ({ content }) => (
   />
 );
 
-const Login = props => {
+const Login = (props) => {
   const { userAndlogin = {}, submitting } = props;
   const { status, type: loginType } = userAndlogin;
-  const [autoLogin, setAutoLogin] = useState(true);
+  const [autoLogin, setAutoLogin] = useState(false);
   const [type, setType] = useState('account');
 
   const handleSubmit = values => {
-      const { dispatch } = props;
+    const {dispatch} = props;
+      console.log("Login submit", dispatch)
       dispatch({
         type: 'userLogin/login',
         payload: {
@@ -38,32 +38,33 @@ const Login = props => {
   return (
     <div className={styles.main}>
       <LoginFrom activeKey={type} onTabChange={setType} onSubmit={handleSubmit}>
-        <Tab key="account" tab="账户密码登录">
+        <Tab key="account" tab="Account">
           {status === 'error' && loginType === 'account' && !submitting && (
-            <LoginMessage content="账户或密码错误（admin/ant.design）" />
+            <LoginMessage content="Error loggin in" />
           )}
 
           <UserName
             name="userName"
-            placeholder="用户名: admin or user"
+            placeholder="username"
             rules={[
               {
                 required: true,
-                message: '请输入用户名!',
+                message: 'Username',
               },
             ]}
           />
           <Password
             name="password"
-            placeholder="密码: ant.design"
+            placeholder="password"
             rules={[
               {
                 required: true,
-                message: '请输入密码！',
+                message: 'Password',
               },
             ]}
           />
         </Tab>
+        {/*
         <Tab key="mobile" tab="手机号登录">
           {status === 'error' && loginType === 'mobile' && !submitting && (
             <LoginMessage content="验证码错误" />
@@ -95,8 +96,9 @@ const Login = props => {
               },
             ]}
           />
-        </Tab>
+          </Tab>*/}
         <div>
+          {/*
           <Checkbox checked={autoLogin} onChange={e => setAutoLogin(e.target.checked)}>
             自动登录
           </Checkbox>
@@ -106,18 +108,9 @@ const Login = props => {
             }}
           >
             忘记密码
-          </a>
+          </a>*/}
         </div>
-        <Submit loading={submitting}>登录</Submit>
-        <div className={styles.other}>
-          其他登录方式
-          <AlipayCircleOutlined className={styles.icon} />
-          <TaobaoCircleOutlined className={styles.icon} />
-          <WeiboCircleOutlined className={styles.icon} />
-          <Link className={styles.register} to="/user/register">
-            注册账户
-          </Link>
-        </div>
+        <Submit loading={submitting}>Login</Submit>
       </LoginFrom>
     </div>
   );

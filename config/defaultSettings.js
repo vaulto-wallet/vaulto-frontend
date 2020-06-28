@@ -10,6 +10,7 @@ export default {
   menu: {
     locale: true,
   },
+  locale : "en-US",
   title: 'Vaulto',
   pwa: false,
   iconfontUrl: '',

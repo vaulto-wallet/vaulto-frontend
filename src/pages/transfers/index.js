@@ -31,7 +31,7 @@ class TransfersPage extends Component{
       payload: {},
     });
     dispatch({
-      type: 'userKeys/getWallets',
+      type: 'userWallets/getWallets',
       payload: {},
     });
     dispatch({
@@ -102,6 +102,8 @@ class TransfersPage extends Component{
        return "Partially processed"
       case 5: 
        return "Processed"
+      case 6: 
+       return "Rejected"
 
     }
 
@@ -152,7 +154,7 @@ class TransfersPage extends Component{
         render : (text, record)=>(
           <span>
                 <Tag color={"green"} key={record["id"].toString()}>
-                  {accounts[record.id].name}
+                  {accounts[record.submitted_by].name}
                 </Tag>
           </span>
         )
@@ -179,9 +181,9 @@ class TransfersPage extends Component{
       title : 'Status',
       key: 'status',
       dataIndex: 'status',
-      render : (text, record)=>(
+      render : (value, record)=>(
         <span>
-            {this.renderOrderStatus(text)}
+            {this.renderOrderStatus(value)}
         </span>
       )
       },
@@ -191,7 +193,7 @@ class TransfersPage extends Component{
         render : (text, record)=>(
           <span>
             {record.status > 1 ? <Button onClick={()=>{this.handleConfirmTransfer(record.id)}}>Confirm</Button> : null}
-            {record.status = 1 ? <Button onClick={()=>{this.handleDeleteKey(record.id)}}>Revoke</Button> : null}
+            {record.status == 1 ? <Button onClick={()=>{this.handleDeleteKey(record.id)}}>Revoke</Button> : null}
           </span>
         )
 

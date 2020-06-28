@@ -10,18 +10,27 @@ export function getSessionKey() {
     return localStorage.getItem('session_key');
 }
 
+export async function accountLogin(params) {
+    console.log(params);
+    return request(apiurl + '/api/users/login', {
+      method: 'POST',
+      data: params,
+    });
+  }
+  
+
 function authorizedRequest(method, url, params){
     return request(apiurl + url, {method: method, data : params, headers : {"Authorization" : "Token " + getSessionKey()} } );
 }
 
-export async function createKey(params) {
+export async function createVault(params) {
     console.log("createAccount", params, getSessionKey());
-    return authorizedRequest("POST", '/api/keys/', params); 
+    return authorizedRequest("POST", '/api/seeds', params); 
 }
 
-export async function getKeys(params) {
+export async function getVaults(params) {
     console.log("getKeys")
-    return authorizedRequest('GET','/api/keys/', params);
+    return authorizedRequest('GET','/api/seeds', params);
 }
 
 export async function shareKey(params) {
@@ -94,16 +103,16 @@ export async function confirmOTP(params) {
 }
 
 export async function setFirewallRule(params) {
-    return authorizedRequest('PUT','/api/firewall/', params);
+    return authorizedRequest('PUT','/api/firewall', params);
 }
 
 export async function getFirewallRules(params) {
-    return authorizedRequest('GET','/api/firewall/', params);
+    return authorizedRequest('GET','/api/firewall', params);
 }
 
 
 export async function addFirewallRule(params) {
-    return authorizedRequest('POST','/api/firewall/', params);
+    return authorizedRequest('POST','/api/firewall', params);
 }
 
 export async function deleteFirewallRule(params) {
@@ -111,7 +120,7 @@ export async function deleteFirewallRule(params) {
 }
 
 export async function createTransfer(params) {
-    return authorizedRequest('POST', '/api/transfers/', params);
+    return authorizedRequest('POST', '/api/orders', params);
 }
 
 export async function getTransfers(params) {

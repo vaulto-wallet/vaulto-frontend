@@ -12,11 +12,19 @@ const getInput = (inputType, options) => {
     return <InputNumber />;
   }
   if (inputType === 'options') {
+    console.log("getInput options", inputType, options )
     return( <Select mode = "multiple" style = { {width: "100%"}} 
+    >
+        {options.map((a)=><Option key={a.id.toString()} value={a.name.toString()}>{a.name}</Option>)}
+    </Select>);
+  }
+  if (inputType === 'select') {
+    return( <Select style = { {width: "100%"}} 
     >
         {options}
     </Select>);
   }
+
   return <Input />;
 };
 
@@ -44,7 +52,7 @@ const EditableCell = ({
                   message: `Please Input ${title}!`,
               },
               ]}
-              initialValue = {record[dataIndex]}>
+              initialValue = {inputType === "options" ?  record[dataIndex].map((a)=>(a)) : record[dataIndex]}>
               {getInput(inputType, options || null) } 
           </Form.Item>
       ) : (
@@ -56,15 +64,15 @@ const EditableCell = ({
     
   
 
-  @connect(({ userAssets, userKeys, userWallets, userFirewall, userAccounts }) => ({
-    userAssets,userKeys, userWallets, userFirewall, userAccounts
+  @connect(({ userAssets, userWallets, userFirewall, userAccounts }) => ({
+    userAssets, userWallets, userFirewall, userAccounts
   }))
   class EditableTable extends Component {
     constructor(props) {
       super(props);
       this.updateFirewallRule = this.updateFirewallRule.bind(this);
       this.state = { data : this.props.data, editingKey: '' };
-      //this.form = React.createRef();
+      this.form = React.createRef();
 
       this.columns = this.props.columns;
       this.columns.push(
@@ -79,7 +87,7 @@ const EditableCell = ({
                 <span>
                     <a
                         href="javascript:;"
-                        onClick={() => this.save(record.key)}
+                        onClick={() => this.save(this.form.current, record.key)}
                         style={{ marginRight: 8 }}
                       >
                         Save
@@ -115,20 +123,27 @@ const EditableCell = ({
         console.log("updateFirewallRule 0", itemData);
         const {dispatch} = this.props;
         const {current_key} = this.props.userWallets;
+        const {accounts} = this.props.userAccounts;
+
         if(!itemData){
-            return;
-        }
+          return;
+      }
+
+        const accountsByName = Object.values(accounts).reduce((a, b)=>(a[b.name]=b, a),{});
+
+        const participants = itemData.firewall_signatures.map((a)=>(accountsByName[a].id));
+
         
         //itemData.address_list.map( (item)=>{return {address:item}})
 
         const payload={
             id : itemKey,
             amount : itemData.amount,
-            private_key : current_key.id,
-            address_list : itemData.address_list.length > 0 ? itemData.address_list.split(",").map((item)=>{return {address:item}}) : [],
-            firewall_signatures : itemData.firewall_signatures.length > 0 ? itemData.firewall_signatures.map((item)=>{ return {user:item}}) : [],
+            wallet_id : current_key.id,
+            address_type : itemData.address_type,
             period : itemData.period,
-            signatures_required : itemData.signatures_required
+            confirmations_required : parseInt(itemData.confirmations_required),
+            participants : participants
         }
         console.log("updateFirewallRule", payload, itemData);
 
@@ -146,10 +161,8 @@ const EditableCell = ({
     };
 
     save(form, key) {
-      form.validateFields((error, row) => {
-        if (error) {
-          return;
-        }
+      console.log(form, key)
+      this.form.current.validateFields().then((row) => {
         const newData = [...this.state.data];
         const index = newData.findIndex(item => key === item.key);
         if (index > -1) {
@@ -181,7 +194,7 @@ const EditableCell = ({
         },
       };
 
-      const {options} = this.props;
+      const {options, select} = this.props;
 
       console.log("Editable table", this.state, this.props, this.columns);
   
@@ -193,9 +206,9 @@ const EditableCell = ({
           ...col,
           onCell: record => ({
             record,
-            inputType: col.dataIndex === 'firewall_signatures' ? 'options' : 'text',
+            inputType: col.dataIndex === 'firewall_signatures' ? 'options' : col.dataIndex ===  'address_type' ? 'select' :  'text',
             dataIndex: col.dataIndex,
-            options: col.dataIndex === 'firewall_signatures' ? options : null,
+            options: col.dataIndex === 'firewall_signatures' ? options : col.dataIndex === 'address_type' ? select : null,
             title: col.title,
             help : col.help || null,
             editing: this.isEditing(record),
@@ -205,7 +218,7 @@ const EditableCell = ({
       console.log("Editable table columns", columns);
   
       return (
-        <Form form={this.form} component={false}>
+        <Form ref={this.form} component={false}>
           <Table
             components={components}
             bordered

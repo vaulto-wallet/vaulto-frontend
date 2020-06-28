@@ -61,8 +61,8 @@ class EditableCell extends Component {
     }
   }*/
   
-  @connect(({ userAssets, userKeys, userWallets, userFirewall, userAccounts }) => ({
-    userAssets,userKeys, userWallets, userFirewall, userAccounts
+  @connect(({ userAssets, userWallets, userFirewall, userAccounts }) => ({
+    userAssets,userWallets, userFirewall, userAccounts
   }))
   class EditableTable extends Component {
     constructor(props) {

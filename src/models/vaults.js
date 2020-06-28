@@ -1,8 +1,8 @@
 import { routerRedux } from 'dva/router';
-import { createKey, getKeys, shareKey } from '@/services/api';
+import { createVault, getVaults, shareKey } from '@/services/api';
 
 export default {
-  namespace: 'userKeys',
+  namespace: 'userVaults',
 
   state: {
     keys : undefined,
@@ -11,18 +11,18 @@ export default {
   },
 
   effects: {
-    *createKey( {payload}, {call, put}  ){
-        console.log("createKey model", payload)
-        const response = yield call(createKey, payload);
+    *createVault( {payload}, {call, put}  ){
+        console.log("createVault model", payload)
+        const response = yield call(createVault, payload);
     },
 
-    *getKeys( {payload}, {call, put}  ){
-        console.log("getKeys model", payload)
-        const response = yield call(getKeys, payload);
+    *getVaults( {payload}, {call, put}  ){
+        console.log("getVaults model", payload)
+        const response = yield call(getVaults, payload);
         console.log("getKeys model response", response);
         yield put({
-            type: 'setKeys',
-            payload: response,
+            type: 'setVaults',
+            payload: response.result.reduce((a, b)=>(a[b.id]=b, a),{}),
         });
     },
     *shareKey( {payload}, {call, put}  ){
@@ -37,11 +37,11 @@ export default {
 },
 
   reducers: {
-    setKeys(state, { payload }) {
-      console.log("setAccount reducer",payload);
+    setVaults(state, { payload }) {
+      console.log("setVaults reducer",payload);
       return {
         ...state,
-        keys: payload.keys,
+        vaults: payload,
         key_types: payload.key_types,
         network_types: payload.network_types,
       };

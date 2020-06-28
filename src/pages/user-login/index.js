@@ -67,6 +67,7 @@ class LoginPage extends Component {
     const { userLogin, submitting } = this.props;
     const { status, type: loginType } = userLogin;
     const { type, autoLogin } = this.state;
+    console.log("Render login", this.context.intl.locale);
     return (
       <div className={styles.main}>
         <Login
@@ -124,7 +125,7 @@ class LoginPage extends Component {
                   message: formatMessage({ id: 'user-login.phone-number.wrong-format' }),
                 },
               ]}
-            />
+            /> 
             <Captcha
               name="captcha"
               placeholder={formatMessage({ id: 'user-login.verification-code.placeholder' })}
@@ -151,15 +152,6 @@ class LoginPage extends Component {
           <Submit loading={submitting}>
             <FormattedMessage id="user-login.login.login" />
           </Submit>
-          <div className={styles.other}>
-            <FormattedMessage id="user-login.login.sign-in-with" />
-            <Icon type="alipay-circle" className={styles.icon} theme="outlined" />
-            <Icon type="taobao-circle" className={styles.icon} theme="outlined" />
-            <Icon type="weibo-circle" className={styles.icon} theme="outlined" />
-            <Link className={styles.register} to="/user/register">
-              <FormattedMessage id="user-login.login.signup" />
-            </Link>
-          </div>
         </Login>
       </div>
     );
@@ -167,3 +159,4 @@ class LoginPage extends Component {
 }
 
 export default LoginPage;
+

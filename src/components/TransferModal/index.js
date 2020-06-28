@@ -5,11 +5,9 @@ import TransferForm from "./forms/transferform";
 
 
 
-const TransferFormCreated = Form.create({ name: 'dynamic_form_item' })(TransferForm);
 
-
-@connect(({ userTransfers }) => ({
-    userTransfers
+@connect(({ userTransfers, userWallets, userAssets }) => ({
+    userTransfers, userWallets, userAssets
 }))export default class TransferModal extends Component{
     state = {
         visible : false
@@ -17,26 +15,34 @@ const TransferFormCreated = Form.create({ name: 'dynamic_form_item' })(TransferF
 
     constructor(){
         super();
+        this.formRef = React.createRef()
     }
 
-
-    componentDidUpdate(){
-        console.log("TransferModal", this.props);
-        if( this.state.visible != this.props.visible ){
-            this.setState({
-                visible : this.props.visible
-            });
-        }
-    }
     
     render(){
-        const {transferForm} = this.props.userTransfers;
+        const {userTransfers, userWallets, userAssets} = this.props;
+        const {transferForm} = userTransfers;
+        const {wallets} = userWallets;
+        const {assets} = userAssets;
+
         const {keyid} = this.props;
         console.log("TransferModal", this.props);
 
         return(
-            <div>
-                <TransferFormCreated keyid={transferForm} visible={transferForm != undefined}/>
+            <div visible={transferForm != undefined}>
+                <Modal title="Transfer" 
+                        visible={this.props.visible} 
+                        onCancel={this.props.handleCancel} 
+                        onOk={()=>{
+                            this.formRef.current.validateFields().then(values=>{
+                                this.props.handleSubmit(values)
+                                this.formRef.current.resetFields();
+                              })
+                        }}
+                    >
+                    {wallets && assets && wallets[transferForm] && assets[wallets[transferForm].asset_id] ? <h2>Transfer {assets[wallets[transferForm].asset_id].symbol} from {wallets[transferForm].name} </h2> : null }
+                    <TransferForm formRef={this.formRef} keyid={transferForm} />
+                </Modal>
             </div>
         );
     }

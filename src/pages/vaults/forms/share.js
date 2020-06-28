@@ -12,10 +12,10 @@ const KEY_TYPE_SINGLE = 3
 const KEY_TYPE_MULTI = 4
 
 
-@connect(({ userKeys, userAccounts }) => ({
-  userKeys, userAccounts
+@connect(({ userVaults, userAccounts }) => ({
+  userVaults, userAccounts
 }))
-class CreatePrivateKeyShareForm extends Component{
+class SharePrivateKeyForm extends Component{
   state =  {
     private_key_type : KEY_TYPE_UNKNOWN
   };
@@ -30,7 +30,7 @@ class CreatePrivateKeyShareForm extends Component{
         console.log('Received values', values);
         
         dispatch({
-          type: 'userKeys/shareKey',
+          type: 'userVaults/shareKey',
           payload: {
             "id" : keydata.id,
             "master_password" : values.master_password,
@@ -115,4 +115,4 @@ class CreatePrivateKeyShareForm extends Component{
   }
 };
 
-export default CreatePrivateKeyShareForm;
+export default SharePrivateKeyForm;

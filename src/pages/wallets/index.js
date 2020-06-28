@@ -21,8 +21,8 @@ const KEY_TYPE_MULTI = 4
 //const CreatedPrivateKeyForm = Form.create({"name" : 'create_private_key_form'})(CreatePrivateKeyForm);
 //const CreatedPrivateKeyShareForm = Form.create({"name" : 'create_private_key_share_form'})(CreatePrivateKeyShareForm);
 
-@connect(({ userAssets, userKeys, userWallets }) => ({
-  userAssets,userKeys,userWallets
+@connect(({ userAssets, userWallets }) => ({
+  userAssets,userWallets
 }))
 class WalletsPage extends Component{
   state = {
@@ -39,7 +39,6 @@ class WalletsPage extends Component{
 
   componentDidMount(){
     const { dispatch } = this.props;
-    const { keys } = this.props.userKeys;
     const { assets } = this.props.userAssets;
     console.log(  "Wallet componentDidMount ", this.props );
 
@@ -59,39 +58,41 @@ class WalletsPage extends Component{
 
   componentDidUpdate(prevProps){
     const { dispatch } = this.props;
-    const { keys } = this.props.userKeys;
     const { userWallets } = this.props;
+    const { wallets, current_key } = userWallets;
 
-    console.log( "Wallets component did update", prevProps, keys);
+    console.log( "Wallets component did update", prevProps, this.props);
     
-    if( prevProps.userKeys.keys == undefined && keys){
-        const wallets = Object.values(keys).filter(wallet => wallet.private_key_type != 1 );
-        console.log( "Wallets component wallets", wallets);
-
-        if(wallets && wallets.length > 0 )
-        {
-            dispatch({
-                type: 'userWallets/setCurrentKey',
-                payload: wallets[0],
-            });
-        }
+    if( !wallets ){
+      return
     }
+
+    const walletsList = Object.values(wallets);
+
+    console.log( "Wallets component wallets", wallets);
+    if(!current_key && walletsList && walletsList.length > 0)
+    {
+        dispatch({
+            type: 'userWallets/setCurrentKey',
+            payload: walletsList[0],
+        });
+    }
+    
 }
 
   handleAddAddress(){
     const { dispatch } = this.props;
     const { userWallets } = this.props;
-    const { keys } = this.props.userKeys;
 
     console.log("Handle add address", userWallets);
     if( userWallets.current_key && keys[userWallets.current_key.id]){
         dispatch({
             type: 'userWallets/getAddress',
-            payload:  keys[userWallets.current_key.id]
+            payload : {}
         });
         dispatch({
-            type: 'userKeys/getKeys',
-            payload:  keys[userWallets.current_key.id]
+            type: 'userVaults/getVaults',
+            payload : {}
         });
     }
   }
@@ -114,8 +115,7 @@ class WalletsPage extends Component{
 
   render(){
     console.log('WalletsPage render',this.props);
-    const {userAssets, userKeys, userWallets} = this.props;
-    const {keys} = userKeys || {};
+    const {userAssets, userWallets} = this.props;
     const {assets} = userAssets || {};
     const {addresses} = userWallets || {};
 

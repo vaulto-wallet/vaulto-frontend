@@ -19,8 +19,8 @@ const KEY_TYPE_MULTI = 4
 
 //const EditableFormTable = Form.create()(EditableTable);
 
-@connect(({ userAssets, userKeys, userWallets, userFirewall, userAccounts }) => ({
-  userAssets,userKeys, userWallets, userFirewall, userAccounts
+@connect(({ userAssets, userVaults, userWallets, userFirewall, userAccounts, userAccount }) => ({
+  userAssets,userVaults, userWallets, userFirewall, userAccounts, userAccount
 }))
 class FirewallPage extends Component{
   state = {
@@ -34,14 +34,17 @@ class FirewallPage extends Component{
   componentDidMount(){
     
     const { dispatch } = this.props;
-    const { keys } = this.props.userKeys;
     console.log(  "Firewall component ", this.props );
+
+    dispatch({
+      type : "userAccount/getAccount",
+      payload : {}
+    })
 
     dispatch({
       type : "userAssets/getAssets",
       payload : {}
     })
-
 
     dispatch({
       type : "userAccounts/getAccounts",
@@ -57,22 +60,19 @@ class FirewallPage extends Component{
 
   componentDidUpdate(prevProps){
     const { dispatch } = this.props;
-    const { keys } = this.props.userKeys;
     const { userWallets } = this.props;
+    const { wallets } = userWallets;
 
-    console.log( "Wallets component did update", prevProps, keys);
+    console.log( "Wallets component did update", prevProps);
     
-    if( prevProps.userKeys.keys == undefined && keys){
-        const wallets = Object.values(keys).filter(wallet => wallet.private_key_type != 1 );
-        console.log( "Wallets component wallets", wallets);
+    console.log( "Wallets component wallets", wallets);
 
-        if(wallets && wallets.length > 0 )
-        {
+    if(wallets && wallets.length > 0 )
+    {
             dispatch({
                 type: 'userWallets/setCurrentKey',
                 payload: wallets[0],
             });
-        }
     }
 }
 
@@ -85,14 +85,17 @@ class FirewallPage extends Component{
     console.log("Handle AddRule");
     const {dispatch} = this.props;
     const {current_key} = this.props.userWallets;
+    const {account} = this.props.userAccount;
     dispatch({
       type: 'userFirewall/addFirewallRule',
       payload : {
-        private_key : current_key.id,
+        wallet_id : current_key.id,
+        participant_type : 1, 
+        participants : [account.id],
+        confirmations_required : 0,
+        address_type : 1,
         amount : 0, 
-        address_list : [],
-        validation : "",
-        period : 0
+        period : 0,
       }
     });
 
@@ -104,10 +107,38 @@ class FirewallPage extends Component{
   
   }
 
+  renderAllowedAddressType(addressType){
+    switch(addressType){
+      case 1:
+          return "Disabled"
+      case 1:
+          return "Internal"
+      case 2:
+          return "External"
+      case 3:
+          return "Whitelisted"
+    }
+    return "Unknown"
+  }
+
+
+  renderAllowedAddressTypeOptions(){
+    return(
+      [
+      <Option key="address_type-0" value="0">Disabled</Option>,
+      <Option key="address_type-1" value="0">Internal</Option>,
+      <Option key="address_type-2" value="2">External</Option>,
+      <Option key="address_type-3" value="3">Whitelisted</Option>,
+      ]
+    )
+  }
+
+  
+
+
   render(){
     console.log('FirewallPage render',this.props);
-    const {userAssets, userKeys, userWallets} = this.props;
-    const {keys} = userKeys || {};
+    const {userAssets, userWallets} = this.props;
     const {assets} = userAssets || {};
     const {wallet_info} = userWallets || {};
     const {firewall_rules} = wallet_info || [];
@@ -121,8 +152,9 @@ class FirewallPage extends Component{
 
     if( accounts && firewall_rules && accounts){
       shared_users_options = accounts ? Object.values(accounts).map( a => (
-          <Option key={a.id.toString()} value={a.id.toString()}>{a.name}</Option>
-      )) : [];
+          //<Option key={a.id.toString()} value={a.id.toString()}>{a.name}</Option>
+          a
+      ))  : [];
     }
 
     console.log(shared_users_options, shared_users);
@@ -136,13 +168,13 @@ class FirewallPage extends Component{
       },
       {
         title : 'Allowed addresses',
-        dataIndex: 'address_list',
-        help : 'Comma-separated address list, * for all addresses',
-        key: 'address_list',
+        dataIndex: 'address_type',
+        help : 'Target address type',
+        key: 'address_type',
         editable : true,
         required : false,
-        render : (text, record) => {
-          return(text.split(",").map( item=>(item ? <Tag color="green">{item}</Tag> : null)) );
+        render : (value, record) => {
+          return(<Tag color="green">{this.renderAllowedAddressType(value)}</Tag> );
         }
       },
       {
@@ -162,10 +194,10 @@ class FirewallPage extends Component{
         required : false
       },
       {
-        title : 'Signatures required',
-        help : 'Signatures required.',
-        dataIndex: 'signatures_required',
-        key: 'signatures_required',
+        title : 'Confirmations required',
+        help : 'Confirmations required.',
+        dataIndex: 'confirmations_required',
+        key: 'confirmations_required',
         editable : true,
       },
       {
@@ -190,7 +222,7 @@ class FirewallPage extends Component{
         console.log(fridx,  firewall_rules[fridx]);
         let rule = Object.assign({},firewall_rules[fridx]);
         rule["key"] = firewall_rules[fridx].id;
-        const participants_list = JSON.parse(firewall_rules[fridx].participants)
+        const participants_list = firewall_rules[fridx].participants;
         rule["firewall_signatures"] = participants_list.map(item=>(accounts[item].name.toString()));
         //rule["address_list"] = firewall_rules[fridx].address_list.map(item=>(item.address)).join(",");
         rule["address_list"] = "internal";
@@ -210,7 +242,7 @@ class FirewallPage extends Component{
          </Card> 
 
         <Card>
-          {dataSource ? <EditableTable data={dataSource} columns={columns} options={shared_users_options}/> : null}
+          {dataSource ? <EditableTable data={dataSource} columns={columns} options={shared_users_options} select={this.renderAllowedAddressTypeOptions()} /> : null}
         </Card>
 
       </Content> 
